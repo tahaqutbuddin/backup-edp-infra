@@ -1,0 +1,54 @@
+parameters:
+- name: environment
+  displayName: 'Environment'
+  type: string
+  values:
+    - 'dev'
+    - 'prod'
+    - 'tst'
+    
+variables:
+  - name: directoryName
+    value: ${{ parameters.environment }}
+
+trigger:
+- none
+
+pool:
+  vmImage: 'ubuntu-latest'
+  
+steps:
+- bash: |
+    cd $(directoryName)
+  displayName: 'Change Directory'
+
+- task: TerraformInstaller@1
+  inputs:
+    terraformVersion: 'latest'
+
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/$(directoryName)'
+    backendServiceArm: 'Pay-As-You-Go(1)(6373a757-98f6-48e6-acab-41a30e2627e1)'
+    backendAzureRmResourceGroupName: 'att-edp-da-rg01-infra'
+    backendAzureRmStorageAccountName: 'attedpdadls'
+    backendAzureRmContainerName: 'attstatetf'
+    backendAzureRmKey: 'infra_base/terraform.tfstate'
+  displayName: 'Init'
+
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'validate'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/$(directoryName)'
+  displayName: 'Validate'
+
+- task: TerraformTaskV4@4
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: '$(System.DefaultWorkingDirectory)/$(directoryName)'
+    environmentServiceNameAzureRM: 'Pay-As-You-Go(1)(6373a757-98f6-48e6-acab-41a30e2627e1)'
+  displayName: 'Apply'
