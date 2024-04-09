@@ -1,0 +1,4 @@
+edp-da-repo01-infra/azure-pipelines-1.yml
+edp-da-repo01-infra/azure-pipelines.yml
+edp-da-repo01-infra-base/environment-pipelines.yml
+edp-da-repo01-infra-boot/Infra-boot-pipeline.yml
